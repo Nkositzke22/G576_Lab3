@@ -23,7 +23,7 @@
   <script>
   
     require([
-     "esri/config",
+      "esri/config",
       "esri/Map",
       "esri/views/MapView",
       // These two give our web map the ability to work with graphics
@@ -34,9 +34,21 @@
       "esri/layers/FeatureLayer",
 
       //adding editor widget
-      "esri/widgets/Editor"
+      "esri/widgets/Editor",
 
-    ], function (esriConfig,Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor) {
+      // Adding Expand widget module
+      "esri/widgets/Expand",
+
+      // Added for Challenge 3
+      "esri/widgets/BasemapGallery",
+
+      // Added for Challenge 4
+      "esri/widgets/Locate",
+
+      // Added for Challenge 5
+      "esri/widgets/Search"
+
+    ], function (esriConfig, Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Expand, BasemapGallery, Locate, Search) {
 
       //esriConfig.apiKey = "AAPTau7l9zV1JqiD1DBhryF-CPg..ZLSOcbqgh0ONE2slQEiaTqrrUI9TlEQg-3ZfWtrR-Ur2oKQRwsv-KCdLKsARwQBmPGaG2FKABsW3UmmWIU-XJKOMLXRXHIwIGTZ-em8fZ6ln7jgXILnyk_sdiPEmyHHJ2R3aewVZeHoN_D5zBlUrSDh34lDuLWb8Pqkd_AZTEeTKoUFodKYWH-GFpwherADvTOzXsWe5qGAf9LXl64x-tfRA3Ohh_KUnBRvjZni6S_7xIgaT4DTFIQZ8DMMEk0vvSSN_JwLUAT1_WThHLKNd";
       const map = new Map({
@@ -163,13 +175,7 @@
         }
       });
     
-      const airports2 = new FeatureLayer({
-        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Airports_2/FeatureServer/0",
-        apiKey: "",
-        outFields: ["AirportCode"],
-      })
-
-            //setting up airport icon
+      // setting up airport icon symbol mapping rules
       const airportSymbol = {
         "type": "simple",
         "symbol": {
@@ -180,29 +186,37 @@
         }
       }
 
-      //const to make the airport labels
-      const airportLabels = {
+      // Challenge 2 Label Style for your Editable Layer (Uses AirportCode)
+      const myAirportLabels = {
         symbol: {
           type: "text",
           color: "FFFFFF",
           haloColor: "#5E8D74",
           haloSize: "2px",
-          font: {
-            size: "12px",
-            family: "Noto Sans",
-            style: "italic",
-            weight: "normal"
-          }
+          font: { size: "12px", family: "Noto Sans", style: "italic", weight: "normal" }
         },
+        labelPlacement: "above-center",
+        labelExpressionInfo: {
+          expression: "$feature.AirportCode"
+        }
+      };
 
-
+      // Reference Label Style for the US Airports layer (Uses Fac_Name)
+      const usAirportLabels = {
+        symbol: {
+          type: "text",
+          color: "FFFFFF",
+          haloColor: "#5E8D74",
+          haloSize: "2px",
+          font: { size: "12px", family: "Noto Sans", style: "italic", weight: "normal" }
+        },
         labelPlacement: "above-center",
         labelExpressionInfo: {
           expression: "$feature.Fac_Name"
         }
       };
 
-      //setting up helicopter icons
+      // setting up helicopter icons
       const heliportSymbol = {
         "type": "simple",
         "symbol": {
@@ -213,16 +227,25 @@
         }
       }
 
-      //Adding Airports layer for Challenge 4
+      // Your editable airport layer (Challenge 1 & 2)
+      const airports2 = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Airports_2/FeatureServer/0",
+        apiKey: "",
+        outFields: ["AirportCode"],
+        renderer: airportSymbol,
+        labelingInfo: [myAirportLabels]
+      })
+
+      // Adding Airports layer for Challenge 4
       const usAirports = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_G576_Lab2/FeatureServer/0",
         renderer: airportSymbol,
         definitionExpression: "Fac_Type = 'AIRPORT'", //adding sql to filter for airports
-        labelingInfo: [airportLabels], //adding labels
+        labelingInfo: [usAirportLabels], //adding labels
         apiKey: "", 
       });
 
-      //Adding Heliports layer for Challenge 4
+      // Adding Heliports layer for Challenge 4
       const usHeliports = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_G576_Lab2/FeatureServer/0",
         renderer: heliportSymbol,
@@ -230,15 +253,13 @@
         apiKey: "", 
       });
 
-
-    
-      //addign feature layer to map
+      // adding feature layers to map
       map.add(nativevillage);
       map.add(usAirports);
       map.add(usHeliports);
       map.add(airports2);
 
-      // Set the point layer's LayerInfo
+      // Set the point layer's LayerInfo for the Editor
       const pointInfos = {
         layer: airports2
       }
@@ -249,10 +270,40 @@
         layerInfos: [pointInfos]
       });
 
-      // Add the widget to the  view
-      view.ui.add(editor, "top-right");
+      // Wrap Editor inside Expand Widget
+      const editorExpand = new Expand({
+        view: view,
+        content: editor,
+        expandIcon: "pencil",
+        group: "primary"  
+      });
+      view.ui.add(editorExpand, "top-right");
 
-    }); // GEMINI: Moved the closing require parenthesis down here so all constructors fall within the correct functional scope
+      // Challenge 3: Wrap Basemap Gallery inside Expand Widget
+      const basemapGallery = new BasemapGallery({
+        view: view
+      });
+      const basemapExpand = new Expand({
+        view: view,
+        content: basemapGallery,
+        expandIcon: "basemap",
+        group: "primary"  
+      });
+      view.ui.add(basemapExpand, "top-right");
+
+      // Challenge 4: Integrate the Locate Me Widget
+      const locateWidget = new Locate({
+        view: view
+      });
+      view.ui.add(locateWidget, "top-left");
+
+      // Challenge 5: Integrate a Search Bar Widget
+      const searchWidget = new Search({
+        view: view
+      });
+      view.ui.add(searchWidget, "top-right");
+
+    }); 
   </script>
 
 </body>
