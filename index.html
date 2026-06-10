@@ -39,13 +39,13 @@
       // Adding Expand widget module
       "esri/widgets/Expand",
 
-      // Added for Challenge 3
+      //Added basemap gallery
       "esri/widgets/BasemapGallery",
 
-      // Added for Challenge 4
+      //adding locate widget
       "esri/widgets/Locate",
 
-      // Added for Challenge 5
+      // adding search widget
       "esri/widgets/Search"
 
     ], function (esriConfig, Map, MapView, Graphic, GraphicsLayer, FeatureLayer, Editor, Expand, BasemapGallery, Locate, Search) {
@@ -186,7 +186,7 @@
         }
       }
 
-      // Challenge 2 Label Style for your Editable Layer (Uses AirportCode)
+      //set label style for editable layer
       const myAirportLabels = {
         symbol: {
           type: "text",
@@ -201,7 +201,7 @@
         }
       };
 
-      // Reference Label Style for the US Airports layer (Uses Fac_Name)
+      //set label style for the US Airports layer
       const usAirportLabels = {
         symbol: {
           type: "text",
@@ -227,7 +227,7 @@
         }
       }
 
-      // Your editable airport layer (Challenge 1 & 2)
+      //Create the editable airports layer
       const airports2 = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/My_Airports_2/FeatureServer/0",
         apiKey: "",
@@ -236,7 +236,7 @@
         labelingInfo: [myAirportLabels]
       })
 
-      // Adding Airports layer for Challenge 4
+      //adding Airports layer
       const usAirports = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_G576_Lab2/FeatureServer/0",
         renderer: airportSymbol,
@@ -245,7 +245,7 @@
         apiKey: "", 
       });
 
-      // Adding Heliports layer for Challenge 4
+      //adding Heliports layer
       const usHeliports = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_G576_Lab2/FeatureServer/0",
         renderer: heliportSymbol,
@@ -259,18 +259,18 @@
       map.add(usHeliports);
       map.add(airports2);
 
-      // Set the point layer's LayerInfo for the Editor
+      //set layer's point info
       const pointInfos = {
         layer: airports2
       }
 
-      // Begin editor constructor
+      //create editor constructor
       const editor = new Editor({
         view: view,
         layerInfos: [pointInfos]
       });
 
-      // Wrap Editor inside Expand Widget
+      //nest ediitor inside Expand widget
       const editorExpand = new Expand({
         view: view,
         content: editor,
@@ -279,7 +279,7 @@
       });
       view.ui.add(editorExpand, "top-right");
 
-      // Challenge 3: Wrap Basemap Gallery inside Expand Widget
+      //nest basemap gallery inside Expand widget
       const basemapGallery = new BasemapGallery({
         view: view
       });
@@ -291,13 +291,13 @@
       });
       view.ui.add(basemapExpand, "top-right");
 
-      // Challenge 4: Integrate the Locate Me Widget
+      //create Locate Me widget
       const locateWidget = new Locate({
         view: view
       });
       view.ui.add(locateWidget, "top-left");
 
-      // Challenge 5: Integrate a Search Bar Widget
+      //create search bar widget
       const searchWidget = new Search({
         view: view
       });
